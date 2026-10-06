@@ -66,40 +66,23 @@
         <button class="btn" style="background-color: #64748b; margin-top: 20px;" onclick="lockPortal()">Log Out</button>
     </div>
 
-    <!-- 3. CRYPTO SECURITY SCRIPT -->
+    <!-- 3. DIRECT MATCH VALIDATION SCRIPT -->
     <script>
-        // Exact lowercase SHA-256 target hashes
-        const AUTH_CONFIG = {
-            userHash: "8b7fa9889da3b2c159bf40d3478fe1bc89a74288b3986ca3b6eef7f017e8cf74", // physics_admin
-            passHash: "f1de63fe3fe29910d68b9195b0b69116e0339d48b1fc5da7ff23083dbb7c02b1"  // AlphaScattered2026
-        };
-
-        // Generates lowercased SHA-256 string from browser input
-        async function sha256(string) {
-            const utf8 = new TextEncoder().encode(string);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(bytes => bytes.toString(16).padStart(2, '0')).join('').toLowerCase();
-        }
-
-        async function validateCredentials() {
+        function validateCredentials() {
+            // Read target values and strip any trailing/leading accidental white space characters
             const userIn = document.getElementById("username").value.trim();
             const passIn = document.getElementById("password").value.trim();
             const errorBanner = document.getElementById("error-banner");
 
-            // Convert live user entries into clean browser hashes
-            const hashedUser = await sha256(userIn);
-            const hashedPass = await sha256(passIn);
+            // Direct plain text validation strings
+            const TARGET_USER = "physics_admin";
+            const TARGET_PASS = "AlphaScattered2026";
 
-            // Double check values via debug tracking
-            console.log("Validating configurations...");
-
-            if (hashedUser === AUTH_CONFIG.userHash && hashedPass === AUTH_CONFIG.passHash) {
+            if (userIn === TARGET_USER && passIn === TARGET_PASS) {
                 errorBanner.style.display = "none";
                 document.getElementById("login-container").classList.add("hidden");
                 document.getElementById("portal-container").classList.remove("hidden");
             } else {
-                console.warn("Authentication parameters failed verification verification match.");
                 errorBanner.style.display = "block";
                 document.getElementById("password").value = ""; 
             }
@@ -112,7 +95,6 @@
             document.getElementById("login-container").classList.remove("hidden");
         }
 
-        // Catch enter key triggers smoothly
         document.addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
                 validateCredentials();
