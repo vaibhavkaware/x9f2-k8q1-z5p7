@@ -69,7 +69,7 @@
     <!-- 3. JAVASCRIPT CREDENTIAL ROUTINE -->
     <script>
         // Simple hashed storage matching keys to avoid plain-text storage in page source
-        const AUTH_CONFIG = {
+        const auth_config = {
             // SHA-256 string values for security (User: "physics_admin" | Pass: "AlphaScattered2026")
             userHash: "8b7fa9889da3b2c159bf40d3478fe1bc89a74288b3986ca3b6eef7f017e8cf74", 
             passHash: "f1de63fe3fe29910d68b9195b0b69116e0339d48b1fc5da7ff23083dbb7c02b1"
@@ -92,7 +92,7 @@
             const hashedUser = await sha256(userIn);
             const hashedPass = await sha256(passIn);
 
-            if (hashedUser === AUTH_CONFIG.userHash && hashedPass === AUTH_CONFIG.passHash) {
+            if (hashedUser === auth_config.userHash && hashedPass === auth_config.passHash) {
                 // Hide verification screen and display target paths
                 errorBanner.style.display = "none";
                 document.getElementById("login-container").classList.add("hidden");
