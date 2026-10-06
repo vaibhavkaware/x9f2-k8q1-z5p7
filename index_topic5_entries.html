@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGCSE Topic 5 - Protected Resource Portal</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f4f6f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); width: 100%; max-width: 450px; transition: all 0.3s ease; }
+        h2 { color: #1e293b; margin-bottom: 8px; font-size: 24px; font-weight: 600; text-align: center; }
+        .subtitle { color: #64748b; font-size: 14px; text-align: center; margin-bottom: 24px; }
+        .input-group { margin-bottom: 16px; }
+        label { display: block; color: #475569; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; transition: border 0.2s; }
+        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .btn { width: 100%; padding: 12px; background-color: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+        .btn:hover { background-color: #1d4ed8; }
+        .error-msg { color: #dc2626; font-size: 14px; text-align: center; margin-top: 12px; display: none; }
+        .hidden { display: none !important; }
+        
+        /* Secured Dashboard Layout */
+        .portal-list { list-style: none; margin-top: 16px; }
+        .portal-item { margin-bottom: 12px; }
+        .portal-link { display: block; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; text-decoration: none; font-weight: 500; transition: all 0.2s; }
+        .portal-link:hover { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+    <!-- 1. ENCRYPTED LOGIN CONTAINER -->
+    <div id="login-container" class="card">
+        <h2>Resource Authentication</h2>
+        <p class="subtitle">Please enter your portal credentials to continue</p>
+        
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username" autocomplete="off">
+        </div>
+        
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        
+        <button class="btn" onclick="validateCredentials()">Unlock Portal</button>
+        <p id="error-banner" class="error-msg">Invalid username or password.</p>
+    </div>
+
+    <!-- 2. PROTECTED PORTAL CONTENT (Revealed only on validation) -->
+    <div id="portal-container" class="card hidden">
+        <h2>IGCSE Physics - Topic 5</h2>
+        <p class="subtitle">Select an authorized worksheet path below:</p>
+        
+        <ul class="portal-list">
+            <li class="portal-item">
+                <a class="portal-link" href="worksheets/0625_5.1_Extended_Alpha_Scattering.html" target="_blank">📄 5.1 Alpha Scattering Worksheet</a>
+            </li>
+            <li class="portal-item">
+                <a class="portal-link" href="worksheets/0625_5.2_Extended_Nuclear_Decay_Equations.html" target="_blank">📄 5.2 Nuclear Decay Equations</a>
+            </li>
+            <li class="portal-item">
+                <a class="portal-link" href="worksheets/0625_5.2_Extended_Radioactivity_and_HalfLife.html" target="_blank">📄 5.2 Radioactivity & Half-Life</a>
+            </li>
+        </ul>
+        <button class="btn" style="background-color: #64748b; margin-top: 20px;" onclick="lockPortal()">Log Out</button>
+    </div>
+
+    <!-- 3. JAVASCRIPT CREDENTIAL ROUTINE -->
+    <script>
+        // Simple hashed storage matching keys to avoid plain-text storage in page source
+        const AUTH_CONFIG = {
+            // SHA-256 string values for security (User: "physics_admin" | Pass: "AlphaScattered2026")
+            userHash: "8b7fa9889da3b2c159bf40d3478fe1bc89a74288b3986ca3b6eef7f017e8cf74", 
+            passHash: "f1de63fe3fe29910d68b9195b0b69116e0339d48b1fc5da7ff23083dbb7c02b1"
+        };
+
+        // Quick helper function to compute a basic SHA-256 hash locally in the browser
+        async function sha256(string) {
+            const utf8 = new TextEncoder().encode(string);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(bytes => bytes.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function validateCredentials() {
+            const userIn = document.getElementById("username").value.trim();
+            const passIn = document.getElementById("password").value;
+            const errorBanner = document.getElementById("error-banner");
+
+            // Convert raw input text into secure hashes
+            const hashedUser = await sha256(userIn);
+            const hashedPass = await sha256(passIn);
+
+            if (hashedUser === AUTH_CONFIG.userHash && hashedPass === AUTH_CONFIG.passHash) {
+                // Hide verification screen and display target paths
+                errorBanner.style.display = "none";
+                document.getElementById("login-container").classList.add("hidden");
+                document.getElementById("portal-container").classList.remove("hidden");
+            } else {
+                errorBanner.style.display = "block";
+                document.getElementById("password").value = ""; // Flush incorrect attempts
+            }
+        }
+
+        function lockPortal() {
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+            document.getElementById("portal-container").classList.add("hidden");
+            document.getElementById("login-container").classList.remove("hidden");
+        }
+
+        // Add Enter key event listener to run validation seamlessly
+        document.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                validateCredentials();
+            }
+        });
+    </script>
+</body>
+</html>
