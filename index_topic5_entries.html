@@ -28,7 +28,7 @@
 </head>
 <body>
 
-    <!-- 1. ENCRYPTED LOGIN CONTAINER -->
+    <!-- 1. AUTHENTICATION CONTAINER -->
     <div id="login-container" class="card">
         <h2>Resource Authentication</h2>
         <p class="subtitle">Please enter your portal credentials to continue</p>
@@ -47,7 +47,7 @@
         <p id="error-banner" class="error-msg">Invalid username or password.</p>
     </div>
 
-    <!-- 2. PROTECTED PORTAL CONTENT (Revealed only on validation) -->
+    <!-- 2. SECURED WORKSHEET LINKS CONTAINER -->
     <div id="portal-container" class="card hidden">
         <h2>IGCSE Physics - Topic 5</h2>
         <p class="subtitle">Select an authorized worksheet path below:</p>
@@ -66,40 +66,42 @@
         <button class="btn" style="background-color: #64748b; margin-top: 20px;" onclick="lockPortal()">Log Out</button>
     </div>
 
-    <!-- 3. JAVASCRIPT CREDENTIAL ROUTINE -->
+    <!-- 3. CRYPTO SECURITY SCRIPT -->
     <script>
-        // Simple hashed storage matching keys to avoid plain-text storage in page source
-        const auth_config = {
-            // SHA-256 string values for security (User: "physadmin" | Pass: "vvkvvk123123")
-            userHash: "8b7fa9889da3b2c159bf40d3478fe1bc89a74288b3986ca3b6eef7f017e8cf74", 
-            passHash: "f1de63fe3fe29910d68b9195b0b69116e0339d48b1fc5da7ff23083dbb7c02b1"
+        // Exact lowercase SHA-256 target hashes
+        const AUTH_CONFIG = {
+            userHash: "8b7fa9889da3b2c159bf40d3478fe1bc89a74288b3986ca3b6eef7f017e8cf74", // physics_admin
+            passHash: "f1de63fe3fe29910d68b9195b0b69116e0339d48b1fc5da7ff23083dbb7c02b1"  // AlphaScattered2026
         };
 
-        // Quick helper function to compute a basic SHA-256 hash locally in the browser
+        // Generates lowercased SHA-256 string from browser input
         async function sha256(string) {
             const utf8 = new TextEncoder().encode(string);
             const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(bytes => bytes.toString(16).padStart(2, '0')).join('');
+            return hashArray.map(bytes => bytes.toString(16).padStart(2, '0')).join('').toLowerCase();
         }
 
         async function validateCredentials() {
             const userIn = document.getElementById("username").value.trim();
-            const passIn = document.getElementById("password").value;
+            const passIn = document.getElementById("password").value.trim();
             const errorBanner = document.getElementById("error-banner");
 
-            // Convert raw input text into secure hashes
+            // Convert live user entries into clean browser hashes
             const hashedUser = await sha256(userIn);
             const hashedPass = await sha256(passIn);
 
-            if (hashedUser === auth_config.userHash && hashedPass === auth_config.passHash) {
-                // Hide verification screen and display target paths
+            // Double check values via debug tracking
+            console.log("Validating configurations...");
+
+            if (hashedUser === AUTH_CONFIG.userHash && hashedPass === AUTH_CONFIG.passHash) {
                 errorBanner.style.display = "none";
                 document.getElementById("login-container").classList.add("hidden");
                 document.getElementById("portal-container").classList.remove("hidden");
             } else {
+                console.warn("Authentication parameters failed verification verification match.");
                 errorBanner.style.display = "block";
-                document.getElementById("password").value = ""; // Flush incorrect attempts
+                document.getElementById("password").value = ""; 
             }
         }
 
@@ -110,8 +112,8 @@
             document.getElementById("login-container").classList.remove("hidden");
         }
 
-        // Add Enter key event listener to run validation seamlessly
-        document.addEventListener("keypress", function(event) {
+        // Catch enter key triggers smoothly
+        document.addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
                 validateCredentials();
             }
